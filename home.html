@@ -1,0 +1,190 @@
+<html lang="en">
+<head>
+  <title>Home</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Exo:900" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="custom.js"></script>
+  <style type="text/css">
+    .fill{
+      height: 100%;
+    }
+    .fill2{
+      height: 220%;
+    }
+    .row{
+      height: 35%;
+    }
+    .panel {
+    overflow: auto;
+  }
+  .none{
+    display: none;
+  }
+
+  img{
+    height: 100%;
+  }
+  </style>
+</head>
+<body>
+
+
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span> 
+      </button>
+      <a class="navbar-brand" style="font-family: Exo, sans-serif;font-size: 200%" href="#">ULPAF</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+    <ul class="nav navbar-nav navbar-right">
+      <li class="active"><a >Mihir Parmar</a></li>
+      <li><a >Rohan Mahadev</a></li>
+      <li><a >Vrishabh Lakhani</a></li>
+    </ul>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container ">
+
+  <div class="row">
+  <div class="col-md-6 col-sm-12  hidden-xs">
+    <div class="panel panel-info ">
+      <div class="panel-heading">Record a File</div>
+      <div class="panel-body fill">
+        
+
+      <button class="btn btn-primary" onclick="startRecording(this);">record</button>
+      <button class="btn btn-primary" onclick="stopRecording(this);" disabled>stop</button>      
+      <h4 id="rec" style="display: none">Recordings</h4>
+      <ul id="recordingslist" style="list-style-type: none"></ul>
+      
+
+
+      </div>
+    </div>
+    </div>
+    <div class="col-md-6 col-sm-12 col-xs-12">
+    <div class="panel panel-info ">
+      <div class="panel-heading">Select an audio file</div>
+      <div class="panel-body fill">
+
+            <h4>Select file</h4>
+            <form  id="form" name="form" id="form">
+            <div class="input-group">
+                <label class="input-group-btn">
+                    <span class="btn btn-primary">
+                        Browse&hellip; <input type="file" accept="audio/*"  name="audio" id="file" style="display: none;"  >
+                    </span>
+                </label>
+                <input type="text" id='aud_name' class="form-control" readonly>
+                <label class="input-group-btn"> <input type="submit" class="btn btn-success">
+                </label>
+
+            </div>
+            </form>
+            <div class="progress" id="progress" style="display: none">
+              <div class="progress-bar progress-bar-striped progress-bar-success active" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width:100%">
+              Processing
+              </div>
+            </div>
+
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="panel panel-success ">
+      <div class="panel-heading">Preprocessed Output</div>
+      <div class="panel-body fill">
+      <div class="col-md-6 col-sm-12">
+      <h4 id="log_label" >Log</h4>
+      <pre id="log" ></pre>
+      </div>
+      <div class="col-md-2"></div>
+      
+      <div class="col-md-4 col-xs-12">
+      <div class="row">
+        File name:-<span id='file_name'></span><br/>
+        Npy file name:-<span id='file_npy'></span><br/>
+      </div>
+      <div class="row"></div>
+      <div class="row">
+        <a class="btn btn-primary" id="scroll" href='#pre' >Predict</a>
+      </div>
+      </div>
+
+      </div>
+      </div>  
+    </div>
+  </div>
+
+  <div class="row" id='pre' style='display: none'>
+  <div class="col-md-12 col-sm-12 col-xs-12" >
+    <div class="panel panel-info " >
+      <div class="panel-heading"  >Prediction</div>
+      <div class="panel-body fill2">
+        <div class="col-md-6 col-sm-12 col-xs-12" >
+       <div id='imgs'></div>
+       </div>
+        <div class="col-md-6 col-sm-12 col-xs-12" >
+       <div ><h3><span id="res"></span></h3></div>
+       </div>
+      </div>
+    </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+  $('form').submit(function (e) {
+if ($('#aud_name').val()=="") {
+  alert('Select a file first');
+}
+else{
+var fd = new FormData( $('form')[0]);
+document.getElementById('form').style.display='none';    
+document.getElementById('progress').style.display='block';    
+$.ajax({
+  url: 'preprocess.php',
+  data: fd,
+  processData: false,
+  contentType: false,
+  type: 'POST',
+  success: function(data){
+    __log('Preprocessing done');
+    __log('Features Extracted');
+    var log=document.getElementById('log');
+    var log_label=document.getElementById('log_label');
+    log.style.display="block";
+    log_label.style.display="block";
+
+    document.getElementById('progress').style.display='none'; 
+    document.getElementById('form').style.display='block';    
+    a_file=data;
+    $('#file_name').html(a_file);
+    $('#file_length').html(Math.floor(duration)+' sec');
+  }
+});
+}
+    e.preventDefault();
+});
+
+
+</script>
+
+  <script src="Record/dist/recorder.js"></script>
+
+</body>
+</html>
